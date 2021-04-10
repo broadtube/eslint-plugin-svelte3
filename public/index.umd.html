@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+  <body>
+    <div id="aaa">
+      &lt;script context='module'&gt; if (blah) blah; &lt;/script&gt;
+      &lt;script&gt; let foo, bar; if (foo) bar; &lt;/script&gt; &lt;div
+      on:click={() =&gt; { if (foo) bar; }}&gt;blah&lt;/div&gt;
+    </div>
+    <script src="../../eslint4b/dist/eslint4b.umd.js"></script>
+    <script src="../index.umd.js"></script>
+    <script>
+      const options = {
+        //              plugins: {"svelte3":window.processors.processors},
+        //        plugins: ["svelte3"],
+        //        parser: 'svelte3',
+        /*
+              overrides: [
+                {
+                  files: ["*.svelte"],
+                  processor: "svelte3/svelte3",
+      //            processor: window.processors,
+                },
+              ],*/
+        parserOptions: {
+          ecmaVersion: 2019,
+          sourceType: "module",
+        },
+        env: {
+          es6: true,
+          browser: true,
+        },
+        rules: {
+          curly: "error",
+          "no-undef": "error",
+        },
+        settings: {
+          "svelte3/named-blocks": true,
+        },
+        settings: {
+          "svelte3/named-blocks": true,
+        },
+        overrides: [
+          {
+            files: ["**/*.svelte/*_template.js"],
+            rules: {
+              curly: "off",
+            },
+          },
+          {
+            files: ["**/*.svelte/*_module.js"],
+            rules: {
+              "no-undef": "off",
+            },
+          },
+        ],
+      };
+      /*
+          const options = {
+          "env": {
+              "node": true,
+              "es6": true
+          },
+          "extends": "eslint:recommended",
+              "rules": {
+                  semi: "error"
+              }
+      };*/
+
+      /*      const options = {
+              parserOptions: {
+                ecmaVersion: 2019,
+                sourceType: "module",
+              },
+              env: {
+                es6: true,
+                browser: true,
+              },
+              plugins: ["svelte3"],
+              rules: {
+                semi: "error",
+              },
+              overrides: [
+                {
+                  files: ["*.svelte"],
+                  processor: "svelte3/svelte3",
+                },
+              ],
+            };*/
+      const linter = new Linter(options);
+      console.log(linter);
+      console.log(window);
+      //      linter.defineParser('svelte3', processors)
+      const testtext = `let foo = 0
+      var b = 0
+      var c;
+      let q = 1
+      `;
+      const code = document.getElementById("aaa");
+      console.log(htmlEntities(code.innerHTML, "decode"));
+
+      const messages = linter.verify(
+        htmlEntities(code.innerHTML, "decode"),
+        options,
+        {
+          filename: "foo.svelte",
+          preprocess: window.processors.processors.svelte3.preprocess,
+          postprocess: window.processors.processors.svelte3.postprocess,
+        }
+      );
+      console.log(messages);
+
+      function htmlEntities(text, proc) {
+        var entities = [
+          ["amp", "&"],
+          ["apos", "'"],
+          ["lt", "<"],
+          ["gt", ">"],
+        ];
+
+        for (var i = 0, max = entities.length; i < max; i++) {
+          if ("encode" === proc) {
+            text = text
+              .replace(
+                new RegExp(entities[i][1], "g"),
+                "&" + entities[i][0] + ";"
+              )
+              .replace('"', "&quot;");
+          } else {
+            text = text
+              .replace("&quot;", '"')
+              .replace(
+                new RegExp("&" + entities[i][0] + ";", "g"),
+                entities[i][1]
+              );
+          }
+        }
+        return text;
+      }
+    </script>
+  </body>
+</html>
